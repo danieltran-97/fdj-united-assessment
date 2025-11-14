@@ -24,9 +24,4 @@ export class LoginPage {
         await this.passwordInput.fill(password);
         await this.loginButton.click();
     }
-
-    async expectError(message?: string) {
-        await expect(this.errorMessage).toBeVisible();
-        if (message) await expect(this.errorMessage).toHaveText(message);
-    }
 }
