@@ -1,2 +1,2 @@
-export const USERNAME = process.env.USERNAME || '';
-export const PASSWORD = process.env.PASSWORD || '';
+export const LOGIN_USERNAME = process.env.LOGIN_USERNAME || '';
+export const LOGIN_PASSWORD = process.env.LOGIN_PASSWORD || '';

@@ -9,8 +9,8 @@ jobs:
     name: 'Playwright Tests'
     runs-on: ubuntu-latest
     env:
-      USERNAME: ${{ secrets.USERNAME }}
-      PASSWORD: ${{ secrets.PASSWORD }}
+      LOGIN_USERNAME: ${{ secrets.LOGIN_USERNAME }}
+      LOGIN_PASSWORD: ${{ secrets.LOGIN_PASSWORD }}
     container:
       image: mcr.microsoft.com/playwright:v1.56.1-noble
       options: --user 1001
