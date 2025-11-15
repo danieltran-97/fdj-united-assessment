@@ -1,81 +1,5 @@
 # fdj-united-assessment
 
-Minimal Node + TypeScript project scaffold.
-
-Getting started
-
-1. Install dependencies (dev deps are listed in package.json):
-
-```bash
-npm install
-```
-
-2. Run in development (auto-restarts using ts-node-dev):
-
-```bash
-npm run dev
-```
-
-3. Build and run production bundle:
-
-```bash
-npm run build
-npm start
-```
-
-Formatting and linting
-
-```bash
-npm run lint
-npm run format
-```
-
-Notes
-
-- No test runner is included (per project preference).
-- Add dependencies as needed and run `npm install`.
-# fdj-united-assessment
-
-Minimal Node + TypeScript project scaffold.
-
-Quick start
-
-1. Install dev dependencies:
-
-```bash
-npm install
-```
-
-2. Development (restarts on changes):
-
-```bash
-npm run dev
-```
-
-3. Build:
-
-```bash
-npm run build
-```
-
-4. Run built output:
-
-```bash
-npm start -- your-name
-```
-
-5. Run tests:
-
-```bash
-npm test
-```
-
-Files added:
-- `src/index.ts` — example entry and exported function
-- `test/example.test.ts` — sample Vitest test
-- `tsconfig.json`, `.eslintrc.cjs`, `.prettierrc`, `.gitignore`
-# fdj-united-assessment
-
 ## E2E Test: Purchase Flow (SauceDemo)
 
 Objective: perform a successful purchase of any one listed product on https://www.saucedemo.com and assert verification points at each stage.
@@ -95,7 +19,12 @@ USERNAME=standard_user
 PASSWORD=secret_sauce
 ```
 
-3. Run the playwright test for purchase flow:
+3. Install Playwright Browsers
+```bash
+npx playwright install
+```
+
+4. Run the playwright test for purchase flow:
 
 ```bash
 npx playwright test tests/purchase.spec.ts
@@ -119,6 +48,111 @@ Test scenarios and verification points
 	- Action: complete the purchase.
 	- Verification: confirmation page shows a complete header with "THANK YOU FOR YOUR ORDER" and confirmation text indicating dispatch.
 
-Notes
+## Best Practices & Implementation Details
+
+### Selector Strategy (Web-First Assertions)
+This project prioritizes **web-first assertions** over locator-based selectors wherever possible:
+
+- **Preferred**: `page.getByRole()`, `page.getByText()`, `page.getByPlaceholder()`, `page.getByLabel()`
+- **Last Resort**: `page.locator()` only used when elements lack accessible text or meaningful roles
+
+Example:
+```typescript
+// ✅ Web-first (preferred)
+this.loginButton = page.getByRole('button', { name: 'Login' });
+this.usernameInput = page.getByPlaceholder('Username');
+
+// ❌ Locator (last resort only)
+this.errorIcon = page.locator('.error-icon'); // No accessible name available
+```
+
+This approach ensures tests are:
+- More resilient to CSS/HTML changes
+- Aligned with accessibility standards
+- Easier to maintain long-term
+
+### Page Object Model (POM) Pattern
+All page interactions are abstracted through dedicated POM classes:
+- `pages/LoginPage.ts` — login and authentication
+- `pages/InventoryPage.ts` — product listing and cart actions
+- `pages/CartPage.ts` — cart review
+- `pages/CheckoutInfoPage.ts` — customer information form
+- `pages/CheckoutOverviewPage.ts` — order summary
+- `pages/CheckoutCompletePage.ts` — order confirmation
+
+Benefits:
+- **Maintainability**: Changes to page layout require updates in one place
+- **Reusability**: POMs can be imported and used across multiple test files
+- **Readability**: Test code remains clean and intent-driven
+
+### CI/CD & Secrets Management
+
+#### GitHub Secrets
+Sensitive credentials (username, password) are stored securely as GitHub repository secrets:
+
+1. Navigate to **Settings > Secrets and variables > Actions**
+2. Add secrets: `LOGIN_USERNAME` and `LOGIN_PASSWORD`
+3. GitHub Actions workflow automatically injects them as environment variables
+
+```yaml
+- name: Run Playwright tests
+  env:
+    LOGIN_USERNAME: ${{ secrets.LOGIN_USERNAME }}
+    LOGIN_PASSWORD: ${{ secrets.LOGIN_PASSWORD }}
+  run: npx playwright test
+```
+
+#### Playwright Docker Image
+Tests run in CI using the official **Playwright Docker image** for consistency:
+
+```yaml
+container:
+  image: mcr.microsoft.com/playwright:v1.56.1-noble
+```
+
+Benefits:
+- All required browser binaries pre-installed
+- Consistent test environment across runs
+- Reduced setup time and system dependencies
+- Guaranteed compatibility with Playwright version
+
+#### Artifact Collection
+On test failures, the following artifacts are automatically captured and uploaded:
+
+```yaml
+- name: Upload test artifacts
+  if: always()
+  uses: actions/upload-artifact@v4
+  with:
+    name: test-results
+    path: |
+      playwright-report/
+      test-results/
+      videos/
+      traces/
+```
+
+Artifacts include:
+- **Screenshots** — captured on failure for visual debugging
+- **Videos** — full test execution recording for detailed analysis
+- **Trace Files** — Playwright Inspector traces for timeline inspection
+- **HTML Report** — detailed test execution summary
+
+This enables faster root-cause analysis without needing to re-run failed tests locally.
+
+### AI-Assisted Development
+Development productivity was enhanced using:
+
+- **GitHub Copilot** — intelligent code generation for POM classes, test scenarios, and boilerplate
+- **Playwright MCP (Model Context Protocol)** — seamless integration for test recording and POM generation
+
+These tools accelerated:
+- Initial POM skeleton creation
+- Selector identification and validation
+- Test scenario scaffolding
+- Documentation generation
+
+### Notes
 - The test uses `tests/constants.ts` to load environment variables from `.env` (via `dotenv`) when present.
 - If you run Playwright from VS Code, ensure VS Code inherits the shell PATH (or set env vars in your environment) so `npx` and Playwright can be executed by the extension.
+- For local development, create a `.env` file with credentials; for CI/CD, use GitHub Secrets.
