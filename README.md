@@ -115,7 +115,6 @@ Benefits:
 - All required browser binaries pre-installed
 - Consistent test environment across runs
 - Reduced setup time and system dependencies
-- Guaranteed compatibility with Playwright version
 
 #### Artifact Collection
 On test failures, the following artifacts are automatically captured and uploaded:
