@@ -152,6 +152,35 @@ These tools accelerated:
 - Test scenario scaffolding
 - Documentation generation
 
+### Test Organization with `test.step()`
+Test steps are organized using `test.step()` for clear, hierarchical debugging:
+
+```typescript
+test('successful purchase of one listed product', async ({ page }) => {
+    await test.step('Login to SauceDemo', async () => {
+        await loginPage.goto();
+        await loginPage.login(LOGIN_USERNAME, LOGIN_PASSWORD);
+    });
+
+    await test.step('Add item to cart', async () => {
+        await inventoryPage.expectItemInInventory(itemName);
+        await inventoryPage.addItemToCart(itemName);
+    });
+
+    await test.step('Complete checkout', async () => {
+        await cartPage.expectItemInCart(itemName);
+        await cartPage.checkout();
+        // ... additional checkout steps
+    });
+});
+```
+
+Benefits:
+- **Granular Failure Reporting**: Identifies exact step where test failed
+- **HTML Report Clarity**: Each step appears as a collapsible section in the test report
+- **Trace Viewer Navigation**: Easily jump to the failing step in the timeline
+- **Debugging**: Quickly pinpoint which stage of the purchase flow encountered issues
+
 ### Notes
 - The test uses `tests/constants.ts` to load environment variables from `.env` (via `dotenv`) when present.
 - If you run Playwright from VS Code, ensure VS Code inherits the shell PATH (or set env vars in your environment) so `npx` and Playwright can be executed by the extension.
