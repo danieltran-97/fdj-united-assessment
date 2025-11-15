@@ -7,16 +7,14 @@ export class CheckoutPage {
     readonly postalCodeInput: Locator;
     readonly continueButton: Locator;
     readonly cancelButton: Locator;
-    readonly errorMessage: Locator;
 
     constructor(page: Page) {
         this.page = page;
-        this.firstNameInput = page.locator('#first-name');
-        this.lastNameInput = page.locator('#last-name');
-        this.postalCodeInput = page.locator('#postal-code');
-        this.continueButton = page.locator('[data-test="continue"]');
-        this.cancelButton = page.locator('[data-test="cancel"]');
-        this.errorMessage = page.locator('[data-test="error"]');
+        this.firstNameInput = page.getByPlaceholder('First Name');
+        this.lastNameInput = page.getByPlaceholder('Last Name');
+        this.postalCodeInput = page.getByPlaceholder('Zip/Postal Code');
+        this.continueButton = page.getByRole('button', { name: 'Continue' });
+        this.cancelButton = page.getByRole('button', { name: 'Cancel' });
     }
 
     /** Fill the checkout information fields */
