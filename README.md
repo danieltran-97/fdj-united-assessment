@@ -84,6 +84,7 @@ Benefits:
 - **Maintainability**: Changes to page layout require updates in one place
 - **Reusability**: POMs can be imported and used across multiple test files
 - **Readability**: Test code remains clean and intent-driven
+- **Scalability**: New test files can easily import and reuse POMs without duplication, enabling the test suite to grow without increasing maintenance overhead
 
 ### CI/CD & Secrets Management
 
