@@ -29,29 +29,23 @@ test.describe('SauceDemo purchase flow', () => {
 
             await inventoryPage.addItemToCart(itemName);
 
-            // Verification: cart badge shows 1 item (if present)
             await inventoryPage.openCart();
         });
 
         await test.step('Complete checkout process and verify confirmation', async () => {
-            // open cart and verify the item is present
             await cartPage.expectItemInCart(itemName);
             await cartPage.checkout();
 
-            // 3) Checkout: fill information and continue
             const checkoutPage = new CheckoutPage(page);
             await checkoutPage.expectVisible();
             await checkoutPage.fillAndContinue('Test', 'User', '12345');
 
-            // Verification: Summary page shows the item and a total
             const checkoutOverviewPage = new CheckoutOverviewPage(page);
             await checkoutOverviewPage.expectItemPresent(itemName);
             await checkoutOverviewPage.expectSummaryInfo();
 
-            // 4) Finish purchase
             await checkoutOverviewPage.finish();
 
-            // Verification: order confirmation is shown
             const checkoutCompletePage = new CheckoutCompletePage(page);
             await checkoutCompletePage.expectSelectorsVisible();
         });
