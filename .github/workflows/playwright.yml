@@ -23,3 +23,12 @@ jobs:
         run: npm ci
       - name: Run your tests
         run: npx playwright test
+      - name: Upload traces/videos/screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts
+          path: |
+            test-results/**/trace.zip
+            test-results/**/video.* 
+            test-results/**/screenshot*.png

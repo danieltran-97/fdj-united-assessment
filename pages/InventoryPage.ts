@@ -3,12 +3,14 @@ import { Page, Locator, expect } from '@playwright/test';
 export class InventoryPage {
     readonly page: Page;
     readonly inventoryContainer: Locator;
-    readonly shoppingCart: Locator;
+    readonly cartBadgeNumber: Locator;
+    readonly cartLink: Locator;
 
     constructor(page: Page) {
         this.page = page;
         this.inventoryContainer = page.locator('.inventory_list');
-        this.shoppingCart = page.locator('.shopping_cart_link');
+        this.cartLink = page.locator('.shopping_cart_link');
+        this.cartBadgeNumber = page.locator('.shopping_cart_badge');
     }
 
     async addItemToCart(itemName: string) {
@@ -17,7 +19,7 @@ export class InventoryPage {
     }
 
     async openCart() {
-        await this.shoppingCart.click();
+        await this.cartLink.click();
     }
 
     async expectItemInInventory(itemName: string) {

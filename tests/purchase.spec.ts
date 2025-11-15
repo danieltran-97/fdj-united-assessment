@@ -2,7 +2,10 @@ import { test, expect } from '@playwright/test';
 import { LoginPage } from '../pages/LoginPage';
 import { InventoryPage } from '../pages/InventoryPage';
 import { CartPage } from '../pages/CartPage';
+import { CheckoutPage } from '../pages/CheckoutInfoPage';
 import { LOGIN_USERNAME, LOGIN_PASSWORD } from './constants';
+import { CheckoutOverviewPage } from '../pages/CheckoutOverviewPage';
+import { CheckoutCompletePage } from '../pages/CheckoutCompletePage';
 
 test.describe('SauceDemo purchase flow', () => {
     test('successful purchase of one listed product', async ({ page }) => {
@@ -10,37 +13,47 @@ test.describe('SauceDemo purchase flow', () => {
         const inventoryPage = new InventoryPage(page);
         const cartPage = new CartPage(page);
 
-        // 1) Go to login and authenticate
-        await loginPage.goto();
-        await loginPage.login(LOGIN_USERNAME, LOGIN_PASSWORD);
+        await test.step('Login to SauceDemo', async () => {
+            await loginPage.goto();
+            if (!LOGIN_USERNAME || !LOGIN_PASSWORD) {
+                throw new Error('LOGIN_USERNAME and LOGIN_PASSWORD environment variables are required. Please set them in .env or your shell environment.');
+            } else {
+                await loginPage.login(LOGIN_USERNAME, LOGIN_PASSWORD);
+            }
+        })
 
-        // Verification: inventory page shows products
-        await inventoryPage.expectItemInInventory('Sauce Labs Backpack');
-
-        // 2) Add an item to the cart (choose one listed product)
         const itemName = 'Sauce Labs Backpack';
-        await inventoryPage.addItemToCart(itemName);
 
-        // Verification: cart badge shows 1 item (if present)
-        // open cart and verify the item is present
-        await inventoryPage.openCart();
-        await cartPage.expectItemInCart(itemName);
+        await test.step('Purchase one listed product', async () => {
+            await inventoryPage.expectItemInInventory(itemName);
 
-        // 3) Checkout: fill information and continue
-        await page.locator('[data-test="checkout"]').click();
-        await page.locator('#first-name').fill('Test');
-        await page.locator('#last-name').fill('User');
-        await page.locator('#postal-code').fill('12345');
-        await page.locator('[data-test="continue"]').click();
+            await inventoryPage.addItemToCart(itemName);
 
-        // Verification: Summary page shows the item and a total
-        await expect(page.locator('.summary_info')).toContainText(['Payment Information']);
+            // Verification: cart badge shows 1 item (if present)
+            await inventoryPage.openCart();
+        });
 
-        // 4) Finish purchase
-        await page.locator('[data-test="finish"]').click();
+        await test.step('Complete checkout process and verify confirmation', async () => {
+            // open cart and verify the item is present
+            await cartPage.expectItemInCart(itemName);
+            await cartPage.checkout();
 
-        // Verification: order confirmation is shown
-        await expect(page.locator('.complete-header')).toHaveText(/THANK YOU FOR YOUR ORDER/i);
-        await expect(page.locator('.complete-text')).toContainText('Your order has been dispatched');
+            // 3) Checkout: fill information and continue
+            const checkoutPage = new CheckoutPage(page);
+            await checkoutPage.expectVisible();
+            await checkoutPage.fillAndContinue('Test', 'User', '12345');
+
+            // Verification: Summary page shows the item and a total
+            const checkoutOverviewPage = new CheckoutOverviewPage(page);
+            await checkoutOverviewPage.expectItemPresent(itemName);
+            await checkoutOverviewPage.expectSummaryInfo();
+
+            // 4) Finish purchase
+            await checkoutOverviewPage.finish();
+
+            // Verification: order confirmation is shown
+            const checkoutCompletePage = new CheckoutCompletePage(page);
+            await checkoutCompletePage.expectSelectorsVisible();
+        });
     });
 });
