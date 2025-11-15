@@ -3,6 +3,7 @@ import { Page, Locator, expect } from '@playwright/test';
 export class CheckoutOverviewPage {
     readonly page: Page;
     readonly summaryContainer: Locator;
+    readonly summaryInfo: Locator;
     readonly itemRows: Locator;
     readonly subtotalLabel: Locator;
     readonly taxLabel: Locator;
@@ -13,6 +14,7 @@ export class CheckoutOverviewPage {
     constructor(page: Page) {
         this.page = page;
         this.summaryContainer = page.locator('.checkout_summary_container');
+        this.summaryInfo = page.locator('.summary_info');
         this.itemRows = page.locator('.cart_item');
         this.subtotalLabel = page.getByText(/^Item total:/);
         this.taxLabel = page.getByText(/^Tax:/);
@@ -71,8 +73,8 @@ export class CheckoutOverviewPage {
 
 
     async expectSummaryInfo() {
-        await expect(this.page.locator('.summary_info')).toContainText(['Payment Information']);
-        await expect(this.page.locator('.summary_info')).toContainText(['Shipping Information']);
-        await expect(this.page.locator('.summary_info')).toContainText(['Price Total']);
+        await expect(this.summaryInfo).toContainText(['Payment Information']);
+        await expect(this.summaryInfo).toContainText(['Shipping Information']);
+        await expect(this.summaryInfo).toContainText(['Price Total']);
     }
 }

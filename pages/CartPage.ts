@@ -8,7 +8,7 @@ export class CartPage {
     constructor(page: Page) {
         this.page = page;
         this.cartItems = page.locator('.cart_item');
-        this.checkoutButton = page.locator('[data-test="checkout"]');
+        this.checkoutButton = page.getByRole('button', { name: 'Checkout' });
     }
 
     async expectItemInCart(itemName: string) {

@@ -17,7 +17,7 @@ export class CheckoutCompletePage {
         await expect(this.completeHeader).toBeVisible();
         await expect(this.completeText).toBeVisible();
     }
-    /** Click back to products to return to inventory */
+
     async backToProducts() {
         await this.backHomeButton.click();
     }
